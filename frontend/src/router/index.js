@@ -8,6 +8,10 @@ import AddJobView from "@/views/AddJobView.vue";
 import EditJobView from "@/views/EditJobView.vue";
 import SignUpView from "@/views/SignUpView.vue";
 import SignInView from "@/views/SignInView.vue";
+import DashboardView from "@/views/DashboardView.vue";
+import JobsAddedView from "@/views/JobsAddedView.vue";
+import CreateJobView from "@/views/CreateJobView.vue";
+
 
 const router = createRouter({
 
@@ -55,7 +59,25 @@ const router = createRouter({
 
         {
             path: '/signin',
+            name: 'signin',
             component: SignInView,
+        },
+
+        {
+            path: '/dashboard',
+            name: 'dashboard',
+            component: DashboardView,
+        },
+
+        {
+            path: '/jobs/create',
+            name: 'create-job',
+            component: CreateJobView,
+        },
+        {
+            path: '/jobs/added',
+            name: 'jobs-added',
+            component: JobsAddedView,
         },
 
         {

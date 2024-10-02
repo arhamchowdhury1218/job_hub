@@ -2,6 +2,7 @@
 import { reactive, ref } from "vue";
 import axios from "axios";
 import { useToast } from "vue-toastification";
+import { useRouter } from 'vue-router';
 
 const form = reactive({
   username: "",
@@ -11,6 +12,7 @@ const form = reactive({
 const errors = reactive({});
 const toast = useToast();
 const loading = ref(false);
+const router = useRouter();
 
 const handleSubmit = async () => {
   errors.username = "";
@@ -21,7 +23,7 @@ const handleSubmit = async () => {
     const response = await axios.post("http://localhost:8000/api/login", form);
     console.log(response.data);
     toast.success("Sign In Successful");
-    // Redirect the user or perform other actions on successful sign-in
+    router.push({ name: 'dashboard' }); // Redirect to dashboard
   } catch (error) {
     loading.value = false;
     if (error.response && error.response.status === 401) {

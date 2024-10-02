@@ -34,24 +34,24 @@ class AccountController extends Controller
 
     public function login(Request $request)
     {
-        // Validate the incoming request
+        // Validate incoming request
         $validator = Validator::make($request->all(), [
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-
+    
         // Check credentials
         $account = Account::where('username', $request->username)->first();
-
-        if (!$account || !Hash::check($request->password, $account->password)) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
+        if ($account && Hash::check($request->password, $account->password)) {
+            return response()->json(['message' => 'Login successful'], 200);
         }
-
-        return response()->json(['message' => 'Login successful!', 'account' => $account], 200);
+    
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
+    
 
 }
