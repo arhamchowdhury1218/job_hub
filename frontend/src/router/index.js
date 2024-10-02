@@ -7,6 +7,7 @@ import JobView from "@/views/JobView.vue";
 import AddJobView from "@/views/AddJobView.vue";
 import EditJobView from "@/views/EditJobView.vue";
 import SignUpView from "@/views/SignUpView.vue";
+import SignInView from "@/views/SignInView.vue";
 
 const router = createRouter({
 
@@ -45,13 +46,17 @@ const router = createRouter({
 
         },
 
-        // ... existing routes
+
         {
             path: '/signup',
             name: 'signup',
             component: SignUpView,
         },
-        // ... existing routes
+
+        {
+            path: '/signin',
+            component: SignInView,
+        },
 
         {
             path: '/:catchAll(.*)',

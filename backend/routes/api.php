@@ -29,3 +29,4 @@ Route::put('/jobs/{id}', [JobController::class, 'update']);
 // For SignUP
 
 Route::post('/signup', [AccountController::class, 'register']);
+Route::post('/login', [AccountController::class, 'login']);

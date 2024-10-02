@@ -77,6 +77,20 @@ const isActiveLink = (routePath) => {
                 to="/signup"
                 >Sign Up</RouterLink
               >
+
+              <RouterLink
+                :class="[
+                  isActiveLink('/signin')
+                    ? 'bg-green-900'
+                    : 'hover:bg-gray-900 hover:text-white',
+                  'text-white',
+                  'px-3',
+                  'py-2',
+                  'rounded-md',
+                ]"
+                to="/signin"
+                >Sign In</RouterLink
+              >
             </div>
           </div>
         </div>
