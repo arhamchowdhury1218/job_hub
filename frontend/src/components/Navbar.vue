@@ -63,6 +63,20 @@ const isActiveLink = (routePath) => {
                 to="/jobs/add"
                 >Add Jobs</RouterLink
               >
+
+              <RouterLink
+                :class="[
+                  isActiveLink('/signup')
+                    ? 'bg-green-900'
+                    : 'hover:bg-gray-900 hover:text-white',
+                  'text-white',
+                  'px-3',
+                  'py-2',
+                  'rounded-md',
+                ]"
+                to="/signup"
+                >Sign Up</RouterLink
+              >
             </div>
           </div>
         </div>

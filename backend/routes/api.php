@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobController;
@@ -17,12 +18,14 @@ use App\Http\Controllers\JobController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-// Route::get('/jobs', [JobController::class, 'index']);
 
-// Route::post('/jobs', [JobController::class, 'store']);
 
 Route::post('/jobs', [JobController::class, 'store']);
 Route::get('/jobs', [JobController::class, 'index']);
 Route::delete('/jobs/{id}', [JobController::class, 'destroy']);
 Route::get('/jobs/{id}', [JobController::class, 'show']);
 Route::put('/jobs/{id}', [JobController::class, 'update']);
+
+// For SignUP
+
+Route::post('/signup', [AccountController::class, 'register']);

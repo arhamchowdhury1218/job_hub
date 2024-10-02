@@ -90,25 +90,6 @@ class JobController extends Controller
         }
     }
 
-    // public function update(Request $request, $id)
-    // {
-    //     $request->validate([
-    //         'title' => 'string|max:255',
-    //         'description' => 'string',
-    //         'salary' => 'string',
-    //         'location' => 'string',
-    //         'company.name' => 'string',
-    //         'company.description' => 'nullable|string',
-    //         'company.contactEmail' => 'email',
-    //         'company.contactPhone' => 'nullable|string',
-    //     ]);
-    
-    //     $job = Job::findOrFail($id);
-    //     $job->update($request->all());
-    
-    //     return response()->json(['message' => 'Job updated successfully!']);
-    // }
-
     public function update(Request $request, $id)
 {
     $request->validate([

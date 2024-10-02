@@ -59,13 +59,20 @@ const updateJob = async () => {
       },
     };
 
-    const response = await axios.put(`http://localhost:8000/api/jobs/${jobId}`, updatedJobData);
+    const response = await axios.put(
+      `http://localhost:8000/api/jobs/${jobId}`,
+      updatedJobData
+    );
     toast.success("Job updated successfully!");
     router.push("/jobs");
   } catch (error) {
     console.error("Error updating job:", error);
     if (error.response && error.response.data) {
-      toast.error(`Failed to update job: ${error.response.data.message || error.response.data}`);
+      toast.error(
+        `Failed to update job: ${
+          error.response.data.message || error.response.data
+        }`
+      );
     } else {
       toast.error("Failed to update job due to a network error.");
     }
