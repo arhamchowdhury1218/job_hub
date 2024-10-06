@@ -39,7 +39,7 @@ const handleSubmit = async () => {
   try {
     // Send POST request to the server
     const response = await axios.post(
-      "http://localhost:8000/api/jobs",
+      "http://localhost:8000/job-posts",
       jobData
     );
 

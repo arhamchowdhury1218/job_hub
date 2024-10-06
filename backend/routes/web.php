@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\JobPostController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,4 +17,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+// Route::post('/job-posts', [JobPostController::class, 'store']);
+// Route::get('/job-posts', [JobPostController::class, 'index']);
+Route::middleware('auth:account')->group(function () {
+    Route::get('/job-posts', [JobPostController::class, 'index']);
+    Route::post('/job-posts', [JobPostController::class, 'store']);
 });

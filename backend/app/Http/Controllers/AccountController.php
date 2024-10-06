@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Validator;
 
 class AccountController extends Controller
@@ -43,8 +44,18 @@ class AccountController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-    
-        // Check credentials
+
+        // $result = Auth::guard('account')->attempt([
+        //     'username' => $request->username,
+        //     'password' => $request->password
+        // ]);
+
+        // if($result){
+        //     return response()->json(['message' => 'Login successful'], 200);
+        // }
+        // $userId = Auth::guard('account')->id();
+        // return response()->json(["message" => $userId]);
+        // // Check credentials
         $account = Account::where('username', $request->username)->first();
         if ($account && Hash::check($request->password, $account->password)) {
             return response()->json(['message' => 'Login successful'], 200);
