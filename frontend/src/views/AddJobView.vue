@@ -2,7 +2,22 @@
 import { reactive } from "vue";
 import axios from "axios";
 import { useToast } from "vue-toastification";
+import { useAuthStore } from "../stores/auth";
+import axiosInstance from '../plugins/axios';
+import { useRouter } from 'vue-router';
+// Configure axios defaults
+// axios.defaults.baseURL = "http://localhost:8000";
+// axios.defaults.withCredentials = true;
+// axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+// Setup CSRF protection
+const getCsrfToken = async () => {
+  try {
+    await axios.get("/sanctum/csrf-cookie");
+  } catch (error) {
+    console.error("Error fetching CSRF token:", error);
+  }
+};
 // Reactive form object to hold job details
 const form = reactive({
   type: "Full-Time",
@@ -18,39 +33,128 @@ const form = reactive({
   },
 });
 
+const authStore = useAuthStore();
 const toast = useToast();
 
 // Function to handle form submission
+// const handleSubmit = async () => {
+//   const jobData = {
+//     type: form.type,
+//     title: form.title,
+//     description: form.description,
+//     salary: form.salary,
+//     location: form.location,
+//     company: {
+//       name: form.company.name,
+//       description: form.company.description,
+//       contactEmail: form.company.contactEmail,
+//       contactPhone: form.company.contactPhone,
+//     },
+//   };
+
+//   try {
+//     // Get token from auth store
+//     const token = authStore.getToken();
+//     // Send POST request to the server
+//     // const response = await axios.post(
+//     //   "http://localhost:8000/api/job-posts",
+//     //   jobData
+//     // );
+
+//     // Send POST request with authorization header
+//     const response = await axios.post(
+//       "http://localhost:8000/api/job-posts",
+//       jobData,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       }
+//     );
+//     resetForm(form); // Call the reset function
+
+//     // Show success message
+//     toast.success("Job Added Successfully");
+//   } catch (error) {
+//     // Show error message
+//     toast.error("Job was not added");
+//   }
+// };
+
+// const handleSubmit = async () => {
+//     const jobData = {
+//         type: form.type,
+//         title: form.title,
+//         description: form.description,
+//         salary: form.salary,
+//         location: form.location,
+//         company: {
+//             name: form.company.name,
+//             description: form.company.description,
+//             contactEmail: form.company.contactEmail,
+//             contactPhone: form.company.contactPhone,
+//         },
+//     };
+
+//     try {
+//         // Get token from auth store
+//         const token = authStore.getToken();
+        
+//         // Send POST request with authorization header
+//         const response = await axios.post(
+//             "http://localhost:8000/api/job-posts",
+//             jobData,
+//             {
+//                 headers: {
+//                     'Authorization': `Bearer ${token}`
+//                 }
+//             }
+//         );
+
+//         resetForm(form);
+//         toast.success("Job Added Successfully");
+//     } catch (error) {
+//         console.error('Error:', error);
+//         toast.error(error.response?.data?.message || "Job was not added");
+//     }
+// };
+
+
 const handleSubmit = async () => {
-  const jobData = {
-    type: form.type,
-    title: form.title,
-    description: form.description,
-    salary: form.salary,
-    location: form.location,
-    company: {
-      name: form.company.name,
-      description: form.company.description,
-      contactEmail: form.company.contactEmail,
-      contactPhone: form.company.contactPhone,
-    },
-  };
+    if (!authStore.isAuthenticated) {
+        toast.error("Please login first");
+        router.push('/login');
+        return;
+    }
 
-  try {
-    // Send POST request to the server
-    const response = await axios.post(
-      "http://localhost:8000/job-posts",
-      jobData
-    );
+    const jobData = {
+        type: form.type,
+        title: form.title,
+        description: form.description,
+        salary: form.salary,
+        location: form.location,
+        company: {
+            name: form.company.name,
+            description: form.company.description,
+            contactEmail: form.company.contactEmail,
+            contactPhone: form.company.contactPhone,
+        },
+    };
 
-    resetForm(form); // Call the reset function
-
-    // Show success message
-    toast.success("Job Added Successfully");
-  } catch (error) {
-    // Show error message
-    toast.error("Job was not added");
-  }
+    try {
+        const response = await axiosInstance.post("/job-posts", jobData);
+        
+        resetForm(form);
+        toast.success("Job Added Successfully");
+    } catch (error) {
+        console.error('Error adding job:', error);
+        if (error.response?.status === 401) {
+            toast.error("Please login again");
+            router.push('/login');
+        } else {
+            toast.error(error.response?.data?.message || "Failed to add job");
+        }
+    }
 };
 // Reset the form
 const resetForm = (form) => {

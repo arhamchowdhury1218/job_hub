@@ -19,9 +19,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::post('/job-posts', [JobPostController::class, 'store']);
-// Route::get('/job-posts', [JobPostController::class, 'index']);
-Route::middleware('auth:account')->group(function () {
-    Route::get('/job-posts', [JobPostController::class, 'index']);
-    Route::post('/job-posts', [JobPostController::class, 'store']);
-});
+// // Route::post('/job-posts', [JobPostController::class, 'store']);
+// // Route::get('/job-posts', [JobPostController::class, 'index']);
+// Route::middleware('auth:account')->group(function () {
+//     // Route::post('/login', [AccountController::class, 'login']);
+//     // Route::get('/job-posts', [JobPostController::class, 'index']);
+//     // Route::post('/job-posts', [JobPostController::class, 'store']);
+// });

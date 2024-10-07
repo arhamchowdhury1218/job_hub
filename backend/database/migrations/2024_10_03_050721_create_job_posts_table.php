@@ -6,14 +6,10 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
     {
         Schema::create('job_posts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('account_id'); // Change user_id to account_id
             $table->string('type');
             $table->string('title');
             $table->text('description');
@@ -23,16 +19,12 @@ return new class extends Migration
             $table->text('company_description')->nullable();
             $table->string('contact_email');
             $table->string('contact_phone')->nullable();
+            $table->foreignId('account_id')->constrained('accounts');
             $table->timestamps();
-
-            // Foreign key constraint to the accounts table
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
     }
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+
+    public function down()
     {
         Schema::dropIfExists('job_posts');
     }

@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class JobPost extends Model
+
+class JobPost extends Authenticatable
 {
     use HasFactory;
 
@@ -19,11 +21,6 @@ class JobPost extends Model
         'company_description',
         'contact_email',
         'contact_phone',
-        'account_id', 
+        'account_id'
     ];
-
-    public function account()
-    {
-        return $this->belongsTo(Account::class, 'account_id');
-    }
 }

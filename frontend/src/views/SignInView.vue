@@ -1,43 +1,61 @@
 <script setup>
 import { reactive, ref } from "vue";
-import axios from "axios";
+import axios from "axios";  // Use regular axios for now
 import { useToast } from "vue-toastification";
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
 
 const form = reactive({
-  username: "",
-  password: "",
+    username: "",
+    password: "",
 });
 
 const errors = reactive({});
 const toast = useToast();
 const loading = ref(false);
 const router = useRouter();
+const authStore = useAuthStore();
+
+// Configure axios defaults
+axios.defaults.baseURL = 'http://localhost:8000';
+axios.defaults.headers.common['Accept'] = 'application/json';
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.withCredentials = true;
 
 const handleSubmit = async () => {
-  errors.username = "";
-  errors.password = "";
-  loading.value = true;
+    errors.username = "";
+    errors.password = "";
+    loading.value = true;
 
-  try {
-    const response = await axios.post("http://localhost:8000/api/login", form);
-    console.log(response.data);
-    toast.success("Sign In Successful");
-    router.push({ name: 'dashboard' }); // Redirect to dashboard
-  } catch (error) {
-    loading.value = false;
-    if (error.response && error.response.status === 401) {
-      // Assuming your server returns an unauthorized error
-      toast.error("Invalid credentials");
-    } else {
-      toast.error("Sign In Failed");
+    try {
+        // First, get CSRF cookie
+        await axios.get('/sanctum/csrf-cookie');
+        console.log('Logging in with credentials:', form); // Add this for debugging
+        // Then attempt login
+        const response = await axios.post("/api/login", form);
+        console.log('Login response:', response.data.token);  // Add this for debugging
+        // console.log(response.data)
+        router.push({ name: 'dashboard' });
+        if (response.data.token) {
+            authStore.setToken(response.data.token);
+            toast.success("Sign In Successful");
+            router.push({ name: 'dashboard' });
+        } else {
+            throw new Error('No token received');
+        }
+    } catch (error) {
+        console.error('Login error details:', error.response || error);  // Enhanced error logging
+        loading.value = false;
+        if (error.response?.status === 401) {
+            toast.error("Invalid credentials");
+        } else {
+            toast.error("Sign In Failed - Network Error");
+        }
+    } finally {
+        loading.value = false;
     }
-  } finally {
-    loading.value = false;
-  }
 };
 </script>
-
 <template>
   <section class="bg-green-50">
     <div class="container m-auto max-w-2xl py-24">
