@@ -11,13 +11,13 @@ import { useRouter } from 'vue-router';
 // axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 // Setup CSRF protection
-const getCsrfToken = async () => {
-  try {
-    await axios.get("/sanctum/csrf-cookie");
-  } catch (error) {
-    console.error("Error fetching CSRF token:", error);
-  }
-};
+// const getCsrfToken = async () => {
+//   try {
+//     await axios.get("/sanctum/csrf-cookie");
+//   } catch (error) {
+//     console.error("Error fetching CSRF token:", error);
+//   }
+// };
 // Reactive form object to hold job details
 const form = reactive({
   type: "Full-Time",

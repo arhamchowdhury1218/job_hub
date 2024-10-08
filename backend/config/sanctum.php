@@ -9,7 +9,7 @@ return [
         env('APP_URL') ? ','.parse_url(env('APP_URL'), PHP_URL_HOST) : ''
     ))),
 
-    'guard' => ['web', 'account'],  // Add 'account' here
+    'guard' => [ 'account'],  // Add 'account' here
 
     'middleware' => [
         'verify_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,

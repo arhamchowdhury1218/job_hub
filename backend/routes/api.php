@@ -30,11 +30,15 @@ Route::put('/jobs/{id}', [JobController::class, 'update']);
 // For SignUP and Log In
 Route::post('/signup', [AccountController::class, 'register']);
 Route::post('/login', [AccountController::class, 'login']);
+// Route::get('/jobsbyuser', [JobPostController::class, 'jobsByUser']);
+
 
 
 // For particular user job post
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/job-posts', [JobPostController::class, 'store']);
-    Route::get('/job-posts', [JobPostController::class, 'index']);
+    Route::get('/jobsbyuser', [JobPostController::class, 'jobsByUser']);
 });
 
+
+Route::get('/job-posts', [JobPostController::class, 'index']);

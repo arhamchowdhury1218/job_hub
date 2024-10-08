@@ -40,37 +40,63 @@ class AccountController extends Controller
             'token' => $token
         ], 201);
 
-        // return response()->json(['message' => 'Account registered successfully!', 'account' => $account], 201);
+        
     }
 
     public function login(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'username' => 'required|string',
-                'password' => 'required|string',
+            // $validatedData = Validator::make($request->all(), [
+            //     'username' => 'required|string',
+            //     'password' => 'required|string',
+            // ]);
+
+            $validatedData = $request->validate([
+                'username' => 'required',
+                'password' => 'required'
             ]);
 
-            if ($validator->fails()) {
-                return response()->json($validator->errors(), 422);
-            }
+            // if ($validatedData->fails()) {
+            //     return response()->json($validatedData->errors(), 422);
+            // }
 
-            $credentials = $request->only('username', 'password');
+            // $credentials = $request->only('username', 'password');
 
-            if (Auth::guard('account')->attempt($credentials)) {
-                $account = Auth::guard('account')->user();
-                $token = $account->createToken('auth-token')->plainTextToken;
-                // \Log::info('Token generated:', ['token' => $token]); // Debug logging
-                return response()->json([
-                    'message' => 'Login successful',
-                    'token' => $token,
+            // if (Auth::guard('account')->attempt($credentials)) {
+            //     $account = Auth::guard('account')->user();
+            //     $token = $account->createToken('auth-token')->plainTextToken;
+               
+            //     return response()->json([
+            //         'message' => 'Login successful',
+            //         'token' => $token,
                     
-                ], 200);
-            }
+            //     ], 200);
+            // }
 
-            return response()->json(['error' => 'Invalid credentials'], 401);
+            $user = Account::where('username', $validatedData['username'])->first();
+
+            if($user && Hash::check($validatedData['password'], $user->password))
+
+            {
+
+                $token = $user->createToken('auth_token')->plainTextToken;
+
+                return response()->json([
+
+                    'access_token' => $token,
+
+                    'token_type' => 'Bearer',
+
+                    'user' =>$user
+
+                ], 200);
+
+            }
+ 
+
+            return response()->json(['error' => 'Invalid credentials'], status: 401);
         } catch (\Exception $e) {
-            \Log::error('Login error: ' . $e->getMessage());
+            
             return response()->json([
                 'error' => 'Login failed',
                 'message' => $e->getMessage()

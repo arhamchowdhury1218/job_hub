@@ -50,7 +50,7 @@ const isActiveLink = (routePath) => {
                 to="/jobs"
                 >Jobs</RouterLink
               >
-              <RouterLink
+              <!-- <RouterLink
                 :class="[
                   isActiveLink('/jobs/add')
                     ? 'bg-green-900'
@@ -62,7 +62,7 @@ const isActiveLink = (routePath) => {
                 ]"
                 to="/jobs/add"
                 >Add Jobs</RouterLink
-              >
+              > -->
 
               <RouterLink
                 :class="[
