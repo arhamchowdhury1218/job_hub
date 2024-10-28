@@ -30,14 +30,14 @@ const handleSubmit = async () => {
     try {
         // First, get CSRF cookie
         await axios.get('/sanctum/csrf-cookie');
-        console.log('Logging in with credentials:', form); // Add this for debugging
-        // Then attempt login
+        console.log('Logging in with credentials:', form); // Debugging
+        
+        // Attempt login
         const response = await axios.post("/api/login", form);
-        console.log('Login response:', response.data.token);  // Add this for debugging
-        // console.log(response.data)
-        router.push({ name: 'dashboard' });
-        if (response.data.token) {
-            authStore.setToken(response.data.token);
+        console.log('Login response:', response.data.access_token);  // Update to access_token
+        
+        if (response.data.access_token) {  // Check for access_token
+            authStore.setToken(response.data.access_token);  // Set the token
             toast.success("Sign In Successful");
             router.push({ name: 'dashboard' });
         } else {
@@ -49,12 +49,13 @@ const handleSubmit = async () => {
         if (error.response?.status === 401) {
             toast.error("Invalid credentials");
         } else {
-            toast.error("Sign In Failed - Network Error");
+            toast.error("An error occurred during sign in.");  // Update to reflect a generic error
         }
     } finally {
         loading.value = false;
     }
 };
+
 </script>
 <template>
   <section class="bg-green-50">

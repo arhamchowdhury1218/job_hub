@@ -11,7 +11,6 @@ class JobController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         // Validate incoming request
         $request->validate([
             'type' => 'required|string',
@@ -25,7 +24,7 @@ class JobController extends Controller
             'company.contactPhone' => 'nullable|string',
         ]);
 
-        // Create a new job entry
+        // Create a new job entry with the authenticated user's account_id
         $job = Job::create([
             'type' => $request->type,
             'title' => $request->title,
@@ -36,11 +35,13 @@ class JobController extends Controller
             'company_description' => $request->company['description'],
             'contact_email' => $request->company['contactEmail'],
             'contact_phone' => $request->company['contactPhone'],
+            'account_id' => auth()->user()->id, // Set account_id to the currently authenticated user's ID
         ]);
 
         // Return a response
         return response()->json(['message' => 'Job created successfully!', 'job' => $job], 201);
     }
+
 
     public function index()
     {
@@ -48,8 +49,8 @@ class JobController extends Controller
         return response()->json($jobs);
     }
 
-    
-   
+
+
     public function destroy($id)
     {
         // Find the job by ID
@@ -69,10 +70,10 @@ class JobController extends Controller
 
     public function show($id)
     {
-        // Find the job by ID using Eloquent
+       
         $job = Job::find($id);
 
-        // Return response
+       
         if ($job) {
             return response()->json([
                 'type' => $job->type,
@@ -91,41 +92,54 @@ class JobController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $request->validate([
-        'title' => 'string|max:255',
-        'description' => 'string',
-        'salary' => 'string',
-        'location' => 'string',
-        'type' => 'string',
-        'company.name' => 'string',
-        'company.description' => 'nullable|string',
-        'company.contactEmail' => 'email',
-        'company.contactPhone' => 'nullable|string',
-    ]);
+    {
+        $request->validate([
+            'title' => 'string|max:255',
+            'description' => 'string',
+            'salary' => 'string',
+            'location' => 'string',
+            'type' => 'string',
+            'company.name' => 'string',
+            'company.description' => 'nullable|string',
+            'company.contactEmail' => 'email',
+            'company.contactPhone' => 'nullable|string',
+        ]);
 
-    $job = Job::findOrFail($id);
+        $job = Job::findOrFail($id);
 
-    // Update the job fields
-    $job->title = $request->input('title');
-    $job->description = $request->input('description');
-    $job->salary = $request->input('salary');
-    $job->location = $request->input('location');
-    $job->type = $request->input('type');
+        
+        $job->title = $request->input('title');
+        $job->description = $request->input('description');
+        $job->salary = $request->input('salary');
+        $job->location = $request->input('location');
+        $job->type = $request->input('type');
 
-    // Update company fields if they exist
-    if ($request->has('company')) {
-        $job->company_name = $request->input('company.name');
-        $job->company_description = $request->input('company.description');
-        $job->contact_email = $request->input('company.contactEmail');
-        $job->contact_phone = $request->input('company.contactPhone');
+        
+        if ($request->has('company')) {
+            $job->company_name = $request->input('company.name');
+            $job->company_description = $request->input('company.description');
+            $job->contact_email = $request->input('company.contactEmail');
+            $job->contact_phone = $request->input('company.contactPhone');
+        }
+
+        $job->save(); 
+
+        return response()->json(['message' => 'Job updated successfully!']);
     }
 
-    $job->save(); // Save the updated job
+    // public function showJob($id)
+    // {
+    //     $job = Job::findOrFail($id);
+    //     return response()->json($job);
+    // }
 
-    return response()->json(['message' => 'Job updated successfully!']);
-}
-    
+    public function getJobsByAdmin()
+    {
+        $jobs = Job::where(column: 'account_id', operator: auth()->user()->id)->get();
+        return response()->json($jobs);
+    }
+
+
 
 
 }

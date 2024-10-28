@@ -3,8 +3,8 @@ import { reactive } from "vue";
 import axios from "axios";
 import { useToast } from "vue-toastification";
 import { useAuthStore } from "../stores/auth";
-import axiosInstance from '../plugins/axios';
-import { useRouter } from 'vue-router';
+import axiosInstance from "../plugins/axios";
+import { useRouter } from "vue-router";
 // Configure axios defaults
 // axios.defaults.baseURL = "http://localhost:8000";
 // axios.defaults.withCredentials = true;
@@ -99,7 +99,7 @@ const toast = useToast();
 //     try {
 //         // Get token from auth store
 //         const token = authStore.getToken();
-        
+
 //         // Send POST request with authorization header
 //         const response = await axios.post(
 //             "http://localhost:8000/api/job-posts",
@@ -119,42 +119,55 @@ const toast = useToast();
 //     }
 // };
 
-
 const handleSubmit = async () => {
-    if (!authStore.isAuthenticated) {
-        toast.error("Please login first");
-        router.push('/login');
-        return;
-    }
+  if (!authStore.isAuthenticated) {
+    toast.error("Please login first");
+    router.push("/login");
+    return;
+  }
 
-    const jobData = {
-        type: form.type,
-        title: form.title,
-        description: form.description,
-        salary: form.salary,
-        location: form.location,
-        company: {
-            name: form.company.name,
-            description: form.company.description,
-            contactEmail: form.company.contactEmail,
-            contactPhone: form.company.contactPhone,
+  const jobData = {
+    type: form.type,
+    title: form.title,
+    description: form.description,
+    salary: form.salary,
+    location: form.location,
+    company: {
+      name: form.company.name,
+      description: form.company.description,
+      contactEmail: form.company.contactEmail,
+      contactPhone: form.company.contactPhone,
+    },
+  };
+
+  try {
+    // Get the token from the auth store
+    const token = authStore.getToken();
+
+
+    // Send POST request with the Bearer token in the headers
+    const response = await axios.post(
+      "http://localhost:8000/api/jobs", // Adjust the URL to your API endpoint
+      jobData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the Bearer token here
         },
-    };
+      }
+    );
 
-    try {
-        const response = await axiosInstance.post("/job-posts", jobData);
-        
-        resetForm(form);
-        toast.success("Job Added Successfully");
-    } catch (error) {
-        console.error('Error adding job:', error);
-        if (error.response?.status === 401) {
-            toast.error("Please login again");
-            router.push('/login');
-        } else {
-            toast.error(error.response?.data?.message || "Failed to add job");
-        }
+    console.log(response.data);
+    resetForm(form);
+    toast.success("Job Added Successfully");
+  } catch (error) {
+    console.error("Error adding job:", error);
+    if (error.response?.status === 401) {
+      toast.error("Please login again");
+      router.push("/login");
+    } else {
+      toast.error(error.response?.data?.message || "Failed to add job");
     }
+  }
 };
 // Reset the form
 const resetForm = (form) => {

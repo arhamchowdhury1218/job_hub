@@ -1,6 +1,7 @@
 <script setup>
 import AddJobCard from "@/components/AddJobCard.vue";
-import JobsAddedCard from "@/components/JobsAddedCard.vue";
+import JobsApplied from "@/components/JobsApplied.vue";
+import JobsAddedCard from "@/components/JobsApplied.vue";
 </script>
 
 <template>
@@ -8,7 +9,7 @@ import JobsAddedCard from "@/components/JobsAddedCard.vue";
     <div class="container-xl lg:container m-auto">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg">
         <AddJobCard />
-        <JobsAddedCard />
+        <JobsApplied/>
       </div>
     </div>
   </section>

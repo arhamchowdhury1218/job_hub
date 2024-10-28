@@ -1,0 +1,376 @@
+AccountController
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Account;
+use Hash;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Validator;
+
+class AccountController extends Controller
+{
+    public function register(Request $request)
+    {
+        // Validate the incoming request
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|unique:accounts|max:255',
+            'email' => 'required|string|email|unique:accounts|max:255',
+            'password' => 'required|string|max:20',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        // Create the account
+        $account = Account::create([
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Create token after registration
+        $token = $account->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Account registered successfully!',
+            'account' => $account,
+            'token' => $token
+        ], 201);
+    }
+
+    public function login(Request $request)
+    {
+        $validatedData = $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string'
+        ]);
+
+        // Attempt to find the user by username
+        $user = Account::where('username', $validatedData['username'])->first();
+
+        // Check if user exists and password matches
+        if ($user && Hash::check($validatedData['password'], $user->password)) {
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => $user
+            ], 200);
+        }
+
+        return response()->json(['error' => 'Invalid credentials'], 401);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'Logged out successfully']);
+    }
+}
+
+
+JobController
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Job;
+use Illuminate\Http\Request;
+
+class JobController extends Controller
+{
+
+
+    public function store(Request $request)
+    {
+        // Validate incoming request
+        $request->validate([
+            'type' => 'required|string',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'salary' => 'required|string',
+            'location' => 'required|string',
+            'company.name' => 'required|string|max:255',
+            'company.description' => 'nullable|string',
+            'company.contactEmail' => 'required|email',
+            'company.contactPhone' => 'nullable|string',
+        ]);
+
+        // Create a new job entry with the authenticated user's account_id
+        $job = Job::create([
+            'type' => $request->type,
+            'title' => $request->title,
+            'description' => $request->description,
+            'salary' => $request->salary,
+            'location' => $request->location,
+            'company_name' => $request->company['name'],
+            'company_description' => $request->company['description'],
+            'contact_email' => $request->company['contactEmail'],
+            'contact_phone' => $request->company['contactPhone'],
+            'account_id' => auth()->user()->id, // Set account_id to the currently authenticated user's ID
+        ]);
+
+        // Return a response
+        return response()->json(['message' => 'Job created successfully!', 'job' => $job], 201);
+    }
+
+
+    public function index()
+    {
+        $jobs = Job::all();
+        return response()->json($jobs);
+    }
+
+
+
+    public function destroy($id)
+    {
+        // Find the job by ID
+        $job = Job::find($id);
+
+        // Check if the job exists
+        if (!$job) {
+            return response()->json(['message' => 'Job not found'], 404);
+        }
+
+        // Delete the job
+        $job->delete();
+
+        // Return a response
+        return response()->json(['message' => 'Job deleted successfully'], 200);
+    }
+
+    public function show($id)
+    {
+        // Find the job by ID using Eloquent
+        $job = Job::find($id);
+
+        // Return response
+        if ($job) {
+            return response()->json([
+                'type' => $job->type,
+                'title' => $job->title,
+                'description' => $job->description,
+                'salary' => $job->salary,
+                'location' => $job->location,
+                'companyName' => $job->company_name,
+                'companyDescription' => $job->company_description,
+                'contactEmail' => $job->contact_email,
+                'contactPhone' => $job->contact_phone,
+            ]);
+        } else {
+            return response()->json(['message' => 'Job not found'], 404);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'string|max:255',
+            'description' => 'string',
+            'salary' => 'string',
+            'location' => 'string',
+            'type' => 'string',
+            'company.name' => 'string',
+            'company.description' => 'nullable|string',
+            'company.contactEmail' => 'email',
+            'company.contactPhone' => 'nullable|string',
+        ]);
+
+        $job = Job::findOrFail($id);
+
+        // Update the job fields
+        $job->title = $request->input('title');
+        $job->description = $request->input('description');
+        $job->salary = $request->input('salary');
+        $job->location = $request->input('location');
+        $job->type = $request->input('type');
+
+        // Update company fields if they exist
+        if ($request->has('company')) {
+            $job->company_name = $request->input('company.name');
+            $job->company_description = $request->input('company.description');
+            $job->contact_email = $request->input('company.contactEmail');
+            $job->contact_phone = $request->input('company.contactPhone');
+        }
+
+        $job->save(); // Save the updated job
+
+        return response()->json(['message' => 'Job updated successfully!']);
+    }
+
+    public function showJob($id)
+    {
+        $job = Job::findOrFail($id);
+        return response()->json($job);
+    }
+
+    public function getJobsByAdmin()
+    {
+        $jobs = Job::where('account_id', auth()->user()->id)->get();
+        return response()->json($jobs);
+    }
+
+
+
+
+}
+
+JobApplicationController
+
+<?php
+
+namespace App\Http\Controllers;
+use App\Models\Job;
+use App\Models\JobApplication;
+use Illuminate\Http\Request;
+use Validator;
+
+class JobApplicationController extends Controller
+{
+    public function apply(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:157',
+            
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        // Create a new job application
+        $application = JobApplication::create([
+            'job_id' => $id,
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            
+
+            
+        ]);
+
+        
+
+        return response()->json(['message' => 'Application submitted successfully!', 'application' => $application], 201);
+    }
+    public function getApplicants($id)
+    {
+        $job = Job::with('applications')->findOrFail($id); 
+        return response()->json($job->applications); 
+    }
+
+
+
+
+}
+
+Models-------
+
+Account
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+
+class Account extends Authenticatable
+{
+    use HasApiTokens, HasFactory, Notifiable;
+
+    protected $fillable = [
+        'username',
+        'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+}
+
+Job
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Job extends Model
+{
+    use HasFactory;
+
+    protected $table = 'jobs';
+    protected $fillable = [
+        'type',
+        'title',
+        'description',
+        'salary',
+        'location',
+        'company_name',
+        'company_description',
+        'contact_email',
+        'contact_phone',
+        'account_id', // Add account_id to fillable
+    ];
+
+    // Define the relationship with Account
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
+
+    // Define the relationship with JobApplication
+    public function applications()
+    {
+        return $this->hasMany(JobApplication::class, 'job_id');
+    }
+}
+
+JobApplication
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class JobApplication extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'job_id',
+        'account_id', // If you want to track the applicant's account
+        'name',
+        'email',
+        'phone',
+        'resume',
+    ];
+
+    public function job()
+    {
+        return $this->belongsTo(Job::class);
+    }
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class, 'job_id');
+    }
+}
+

@@ -9,7 +9,10 @@ import EditJobView from "@/views/EditJobView.vue";
 import SignUpView from "@/views/SignUpView.vue";
 import SignInView from "@/views/SignInView.vue";
 import DashboardView from "@/views/DashboardView.vue";
-import JobsAddedView from "@/views/JobsAddedView.vue";
+import JobsAddedView from "@/views/JobsAppliedView.vue";
+import ApplyJobView from "@/views/ApplyJobView.vue";
+import JobsAppliedView from "@/views/JobsAppliedView.vue";
+import JobApplicantsView from "@/views/JobApplicantsView.vue";
 
 
 
@@ -72,16 +75,31 @@ const router = createRouter({
 
        
         {
-            path: '/jobs/added',
-            name: 'jobs-added',
-            component: JobsAddedView,
+            path: '/jobs/:id/applied', 
+            name: 'jobs-applied',
+            component: JobsAppliedView,
         },
+        
 
         {
             path: '/:catchAll(.*)',
             name: 'not-found',
             component: NotFoundView,
         },
+
+        {
+            path: '/jobs/apply/:id',
+            name: 'apply-job',
+            component: ApplyJobView, // Ensure this component is imported and defined
+        },
+        
+
+        {
+            path: '/jobs/:id/applicants',
+            name: 'job-applicants',
+            component: JobApplicantsView, 
+        }
+        
     ],
 });
 
